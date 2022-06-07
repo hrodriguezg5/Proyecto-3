@@ -163,7 +163,6 @@ void EliminarAlumno(){
 		anterior=aux;
 		aux=aux->siguiente;
 	}
-	//ERROR NO TIRA NADA AL NO ENCONTRAR NADA SOLU
 	if(aux==NULL){
 		cout<<"El alumno no existe en la base de datos"<<endl;
 	}
