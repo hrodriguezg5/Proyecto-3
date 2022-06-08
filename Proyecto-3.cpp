@@ -15,7 +15,8 @@ void AgregarAlumno();
 int main()
 {
 	int exit, opc;
-	
+
+    do{
 	system("cls");
 	system("color 7");
 	cout<<"\t\t              PROYECTO III           "<<endl<<endl;
@@ -79,11 +80,14 @@ int main()
 			break;
 			
 		case 11:
-			
+		    cout<<"\n\n\tHa elegido salir...\n\n\t\t";
+			system ("pause");
 			break;
 	}
-
-	return main();
+	
+	}while(opc!=11);
+	system ("cls");
+	return 0;
 }
 
 
