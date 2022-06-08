@@ -43,7 +43,7 @@ int main()
 	switch(opc){
 		
 		case 1:
-			
+			CargarRegistros();
 			break;
 			
 		case 2:

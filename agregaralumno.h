@@ -16,6 +16,123 @@ struct Alumno{
 
 Alumno *inicio=NULL;
 
+int carga=0;
+
+void CargarRegistros(){
+	MYSQL* conexion;
+	MYSQL_ROW row;
+	MYSQL_RES* data;
+	string sql; 
+	int resultado, opc;
+	const char* query;
+	
+	conexion=mysql_init(0);
+	conexion=mysql_real_connect(conexion, "localhost", "root", "Accesorios1", "proyecto-3", 3306, NULL, 0);
+	
+	while(carga==1){
+		sql="DELETE FROM alumno WHERE clave IS NOT NULL";
+		query=sql.c_str();
+		resultado=mysql_query(conexion, query);
+		carga=0;
+	}
+	
+	if(carga==0){
+		system("cls");
+		sql="SELECT * FROM alumno";
+		query=sql.c_str();
+		resultado=mysql_query(conexion, query);
+	
+		data=mysql_store_result(conexion);
+		int nrows=mysql_num_rows(data);
+	
+		string clave_1[nrows], nombre_1[nrows], correo_1[nrows], fecha_1[nrows], telefono_1[nrows], direccion_1[nrows], grado_1[nrows], seccion_1[nrows];
+		string clave_int, telefono_int;
+		int i=0;
+		
+		while(row=mysql_fetch_row(data)){
+			
+			clave_1[i]=row[0];
+			nombre_1[i]=row[1];
+			correo_1[i]=row[2];
+			fecha_1[i]=row[3];
+			telefono_1[i]=row[4];
+			direccion_1[i]=row[5];
+			grado_1[i]=row[6];
+			seccion_1[i]=row[7];
+			i++;
+		}
+		
+		for(i=0;i<nrows;i++){
+			Alumno *alumno = new Alumno();
+			
+			clave_int="0";
+			telefono_int="0";
+			clave_int=clave_1[i];
+			istringstream(clave_int)>>alumno->clave;
+			alumno->nombre=nombre_1[i];
+			alumno->correo=correo_1[i];
+			alumno->fecha=fecha_1[i];
+			telefono_int=telefono_1[i];
+			istringstream(telefono_int)>>alumno->telefono;
+			alumno->direccion=direccion_1[i];
+			alumno->grado=grado_1[i];
+			alumno->seccion=seccion_1[i];
+			alumno->siguiente = NULL;
+			
+			if(inicio == NULL){
+				inicio = alumno;
+			}
+			
+			else if(alumno->clave<inicio->clave){
+				alumno->siguiente=inicio;
+				inicio=alumno;
+			}
+			
+			else{
+				Alumno* aux=inicio;
+				Alumno* anterior;
+				
+				while(aux!=NULL){
+					
+					if(alumno->clave<aux->clave){
+						
+						anterior->siguiente=alumno;
+						alumno->siguiente=aux;
+					}
+					else{
+						anterior=aux;
+						aux=aux->siguiente;	
+					}
+					
+				}
+				anterior->siguiente=alumno;		
+			}
+		}
+		
+		if(inicio==NULL){
+			
+			cout<<"\t\t\t\tNo hay registros en la base de datos"<<endl;
+		}
+		
+		else if(resultado==0){
+			
+			cout<<"\t\t\t\tRegistros Cargados"<<endl;
+		}
+		
+		cout<<"\n\t\t\t\tIngrese 1 para volver al menu: ";
+		cin>>opc;
+		
+		while(opc!=1)
+		{
+			cout<<"\n\t\t\t\tOpcion Invalida"<<endl;
+			cout<<"\t\t\t\tIngrese 1 para volver al menu: ";
+			cin>>opc;
+		}
+		carga=1;	
+	}
+	
+}
+
 void InsertarNodo(){	
 	Alumno *alumno=new Alumno();
 	
@@ -54,8 +171,8 @@ void InsertarNodo(){
 		return;
 	}
 	
-	Alumno *aux=inicio;
-	Alumno *anterior;
+	Alumno* aux=inicio;
+	Alumno* anterior;
 	
 	while(aux!=NULL){
 		
@@ -103,7 +220,7 @@ void ListarAlumno(){
 		return;
 	}
 	
-	Alumno *aux=inicio;
+	Alumno* aux=inicio;
 	
 	while(aux!=NULL){
 		
@@ -137,9 +254,9 @@ void GuardarCambios(){
 	MYSQL_RES* data;
 	MYSQL_FIELD *columna;
 	
-	ostringstream clave_str, telefono_str;
-	string sql, t1, t2, clave_s, telefono_s; 
-	int resultado;
+	string sql, t1, t2, clave_s, telefono_s;
+	int i=0;
+	int resultado, clave1[i];
 	
 	conexion=mysql_init(0);
 	conexion=mysql_real_connect(conexion, "localhost", "root", "Accesorios1", "proyecto-3", 3306, NULL, 0);
@@ -148,56 +265,29 @@ void GuardarCambios(){
 	system("cls");
 	int opc;
 	
-	Alumno *aux=inicio;
+	Alumno* aux=inicio;
 	
 	while(aux!=NULL){
-
+		ostringstream clave_str, telefono_str;
+	
 		clave_str<<aux->clave;
 		clave_s=clave_str.str();
 		telefono_str<<aux->telefono;
 		telefono_s=telefono_str.str();
 		
-		sql="DELETE FROM alumno WHERE clave='"+clave_s+"'";
+		sql="DELETE FROM alumno WHERE clave IS NOT NULL";
 		query=sql.c_str();
-		resultado=mysql_query(conexion, query); 
+		resultado=mysql_query(conexion, query);
 		
 		t1="INSERT INTO alumno(clave, nombre, correo, fecha_nacimiento, telefono, direccion, grado, seccion)"; 
 		t2="VALUES ('"+clave_s+"', '"+aux->nombre+"', '"+aux->correo+"', '"+aux->fecha+"', '"+telefono_s+"', '"+aux->direccion+"', '"+aux->grado+"', '"+aux->seccion+"')";
 		sql=t1+t2;
 		query=sql.c_str();
 		resultado=mysql_query(conexion, query);
-		
-		
+	
 		aux=aux->siguiente;
+		i++;
 	}
-	
-	sql = "SELECT * FROM alumno";
-	query = sql.c_str();
-	resultado=mysql_query(conexion, query);
-
-	data=mysql_store_result(conexion);
-	int countColumns=mysql_num_fields(data);
-	int countRows=mysql_num_rows(data);
-	cout<<endl<<endl;
-	columna = mysql_fetch_field(data);
-	
-	Alumno *alumno2=new Alumno();
-	
-	
-	
-	
-	while(row=mysql_fetch_row(data)){
-		
-	//	for(int i=0;i<countColumns;i++){
-		cout<<row[1]<<endl;
-	//	}
-		alumno2->nombre=row[1];
-		
-		cout<<endl;
-	}
-	
-	cout<<alumno2->nombre;
-	
 	
 	if(resultado==0){
 		
@@ -224,16 +314,17 @@ void ListarAlumnos(){
 	
 	system("cls");
 	int opc;
+	int buscar;
 	
 	if(inicio==NULL){
 		
 		cout<<"\t\t\t\tNo hay datos en la lista"<<endl;
 		return;
 	}
-	int buscar;
+	
 	Alumno *aux=inicio;
 	
-	cout<<"Ingrese el codigo del alumno";
+	cout<<"\t\t\tIngrese el codigo del alumno: ";
 	cin>>buscar;
 	
 	while(aux!=NULL){
