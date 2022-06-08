@@ -309,7 +309,7 @@ void GuardarCambios(){
 	int resultado;
 	
 	conexion=mysql_init(0);
-	conexion=mysql_real_connect(conexion, "localhost", "root", "", "alumno", 3306, NULL, 0);
+	conexion=mysql_real_connect(conexion, "localhost", "root", "Accesorios1", "proyecto-3", 3306, NULL, 0);
 	const char* query;
 	
 	system("cls");
